@@ -1,0 +1,20 @@
+{
+  "name": "message-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "express": "^4.18.1",
+    "mongoose": "^6.3.6",
+    "nodemon": "^2.0.16",
+    "validator": "^13.7.0"
+  }
+}
