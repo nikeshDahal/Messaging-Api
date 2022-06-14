@@ -13,6 +13,8 @@ const auth =async(req,res,next)=>{
        }
        req.token = token;
        req.user = foundUser;
+       const allUsers=await User.find({});
+       req.users = allUsers;
        console.log('middlewares.....')
         next();
     } catch (error) {

@@ -45,4 +45,68 @@ userRouter.post("/users/login", async (req,res)=>{
  
   })
 
+  //.....................get list of users.............//
+
+  userRouter.get('/users/getList',auth,async(req,res)=>{
+    try {
+        const usersList = req.users //list of users from DB
+        if(!usersList){
+            throw new Error();
+        }
+        res.send(usersList);
+    } catch (error) {
+        res.status(400).send({error:"failed in ferching users"})
+        
+    }
+  })
+
+  //.....................user profile......................//
+  userRouter.get('/users/me',auth,async(req,res)=>{
+    try {
+      const myProfile = req.user;
+      if(!myProfile){
+        throw new Error();
+      }
+      res.status(200).send(myProfile);//sends the found user from middleware>>>auth.
+    } catch (error) {
+      res.status(400).send({
+        error:"profile not found"
+      })
+    }
+  })
+
+  //.......................update profile......................//
+  userRouter.patch('/users/me',auth,async(req,res)=>{
+    const allowedUpdates=['name','password','email'];
+    const updates=Object.keys(req.body);
+    const isValidOperation = updates.every((update)=>allowedUpdates.includes(update));
+    if(!isValidOperation){
+      res.status(400).send({
+        error:"invalid updates"
+      })
+    }
+
+    try {
+      updates.forEach((update)=>req.user[update]=req.body[update]); // for updating fields
+      await req.user.save();
+      res.status(200).send(req.user); 
+    } catch (error) {
+      res.status(400).send({
+        error:"unable to update fields"
+      })
+    }
+  })
+
+  //................................deleting user..................................//
+
+  userRouter.delete('/users/me',auth,async(req,res)=>{
+    try {
+      const user = await req.user.remove();
+      res.status(200).send(user);
+    } catch (error) {
+      res.status(400).send({
+        error:"unable to delete user"
+      })
+    }
+  })
 module.exports=userRouter
