@@ -2,12 +2,14 @@ const express = require('express');
 const userRouter = new express.Router();
 const User = require("../models/users");
 const auth = require('../middlewares/auth');
+const {sendWelcomeMail,sendFairwellMail} = require('../emails/account')
 
 //......................create  users...............//
 userRouter.post("/users",async (req, res) => {
     try {
       const user = new User(req.body);
       await user.save();
+      sendWelcomeMail(user.email,user.name);
       const tokens = await user.generateAuthToken()
       res.status(200).send({user,tokens});
     } catch (error) {
@@ -117,6 +119,7 @@ userRouter.post("/users/login", async (req,res)=>{
   userRouter.delete('/users/me',auth,async(req,res)=>{
     try {
       const user = await req.user.remove();
+      sendFairwellMail(user.email,user.name);
       res.status(200).send(user);
     } catch (error) {
       res.status(400).send({

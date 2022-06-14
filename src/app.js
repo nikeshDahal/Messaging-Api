@@ -1,6 +1,8 @@
+require('dotenv').config();
 const express = require ("express");
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
+
 
 require("./db/mongoose"); //for db connection
 
@@ -9,6 +11,10 @@ const messageRouter = require('./routers/messageRouter');
 app.use(express.json());
 app.use(usersRouter);
 app.use(messageRouter);
+
+
+
+
 
 
 app.listen(port,()=>{
