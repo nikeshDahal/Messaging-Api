@@ -66,7 +66,7 @@ userRouter.post("/users/login", async (req,res)=>{
 
   userRouter.get('/users/getList',auth,async(req,res)=>{
     try {
-        const usersList = req.users //list of users from DB
+        const usersList = await User.find({_id:{$nin:req.user._id}}) //list of users from DB except current user
         if(!usersList){
             throw new Error();
         }
