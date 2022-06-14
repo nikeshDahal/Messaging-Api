@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Message = require('./message')
 
 //schema need properties so we passed objects having certain properties in to it.
 const userSchema = new mongoose.Schema({
@@ -38,10 +39,19 @@ const userSchema = new mongoose.Schema({
             type:String,
             required:true
         }
-    }],
+    }]
+},{
+    timestamps:true
 });
 
+userSchema.virtual('messageList',{
+    ref:'message',
+    localField:'_id',
+    foreignField:'sender'
+})
+
 //.....................abstraction of the details which is to be rendered to client .................//
+
 userSchema.methods.toJSON=function(){
     const user = this
     const userObj = user.toObject();
@@ -51,6 +61,7 @@ userSchema.methods.toJSON=function(){
 }
 
 //.......................to generate jwt tockens......................//
+
 userSchema.methods.generateAuthToken=async function() {
     const user = this
     const token = jwt.sign({_id:user._id.toString()},'SECRET_KEY');
@@ -86,6 +97,13 @@ userSchema.pre('save',async function(next){
     }
     next();
 });
+
+//..............................delete user message when user is removed ......................//
+userSchema.pre('remove',async function(next){
+    const user = this ;
+    await Message.deleteMany({sender:user._id});
+    next();
+})
 
 const User = mongoose.model('user',userSchema);
 module.exports=User;

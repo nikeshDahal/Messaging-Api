@@ -45,6 +45,21 @@ userRouter.post("/users/login", async (req,res)=>{
  
   })
 
+    // .................logout from all sessions................//
+    userRouter.get("/users/logoutAll",auth,async(req,res)=>{
+      try {
+        req.user.tokens=[];
+        await req.user.save();
+        res.send({
+          message:"logged out of all session"
+        })
+      } catch (error) {
+        res.status(400).send({
+          message:"error in logging out from all sessions"
+        })
+      }
+    })
+
   //.....................get list of users.............//
 
   userRouter.get('/users/getList',auth,async(req,res)=>{
