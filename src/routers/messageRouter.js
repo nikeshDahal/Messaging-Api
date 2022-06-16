@@ -4,12 +4,12 @@ const Message = require("../models/message");
 const auth = require("../middlewares/auth");
 
 //........................create message...................................//
-messageRouter.post("/message/:receiverId", auth, async (req, res) => {
-  const receiverId = req.params.receiverId;
+messageRouter.post("/message/:user2Id", auth, async (req, res) => {
+  const user2Id = req.params.user2Id;
   const messages = new Message({
     ...req.body,
-    sender: req.user._id,
-    receiver: receiverId,
+    user1: req.user._id,
+    user2: user2Id,
   });
   try {
     const savedMessage = await messages.save();
@@ -42,12 +42,13 @@ messageRouter.get("/message", auth, async (req, res) => {
   }
 });
 
-// get all the conversation messages to particular user
+// get all the conversation messages of particular user
 messageRouter.get("/message/:id", auth, async (req, res) => {
   const _id = req.params.id;
   console.log(_id)
   try {
-    const message = await Message.find({receiver: _id, sender : req.user._id });
+    // const message = await Message.find({user2: _id, user1 : req.user._id });
+    const message = await Message.find( { $or: [ {user2: _id, user1 : req.user._id }, { user1: _id, user2 : req.user._id } ] } )
     if (!message) {
       return res.status(404).send();
     }
@@ -73,7 +74,7 @@ messageRouter.patch("/messages/:id", auth, async (req, res) => {
     const _id = req.params.id;
     const message = await Message.findOne({
       _id,
-      sender: req.user._id,
+      user1: req.user._id,
     });
     if (!message) {
       return res.status(404).send();
@@ -93,7 +94,7 @@ messageRouter.delete("/message/:id", auth, async (req, res) => {
   try {
     const message = await Message.findOneAndDelete({
       _id: req.params.id,
-      sender: req.user._id,
+      user1: req.user._id,
     });
     if (!message) {
       return res.status(400).send({
